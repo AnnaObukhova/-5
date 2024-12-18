@@ -1,0 +1,582 @@
+namespace Лабораторная_работа__5
+{
+    internal class Program
+    {
+        static Random rand = new Random();
+
+        #region меню
+        static void PrintMenu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Выберете пункт меню:");
+            Console.WriteLine("1.Работа с двумерным массивом");
+            Console.WriteLine("2.Работа с рваным массивом");
+            Console.WriteLine("3.Работа со строками");
+            Console.WriteLine("4.Выход");
+        }
+
+        static void PrintMenu2()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Выберете пункт меню:");
+            Console.WriteLine("1.Сформировать двумерный массив");
+            Console.WriteLine("2.Напечатать двумерный массив");
+            Console.WriteLine("3.Выполнить удаление столбцов, в которых есть 0, из двумерного массива");
+            Console.WriteLine("4.Выход");
+        }
+
+        static void PrintMenu3()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Выберете пункт меню:");
+            Console.WriteLine("1.Сформировать с помощью ДСЧ");
+            Console.WriteLine("2.Сформировать вводом с клавиатуры");
+            Console.WriteLine("3.Выход");
+        }
+
+        static void PrintMenu4()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Выберете пункт меню:");
+            Console.WriteLine("1.Сформировать рваный массив");
+            Console.WriteLine("2.Напечатать рваный массив");
+            Console.WriteLine("3.Добавить строку с заданным номером");
+            Console.WriteLine("4.Выход");
+        }
+
+        #endregion
+
+        #region функции ввода и проверки ввода
+
+        /// <summary>
+        /// Проверяет правильность введенного значения
+        /// </summary>
+        /// <param name="message">Выводимое сообщение</param>
+        /// <returns>число</returns>
+        static int ReadInt(string message)
+        {
+            int number;
+            bool isConvert;
+            do
+            {
+                Console.WriteLine(message);
+                isConvert = int.TryParse(Console.ReadLine(), out number);
+                if (!isConvert)
+                {
+                    Console.WriteLine("Ошибка при вводе целого числа");
+                }
+            } while (!isConvert);
+            return number;
+        }
+                
+        /// <summary>
+        /// Проверяет границы
+        /// </summary>
+        /// <param name="number">число</param>
+        /// <param name="left">левая граница</param>
+        /// <param name="right">правая граница</param>
+        /// <returns>число</returns>
+        static bool IsNumberInDiapason(int number, int left, int right) => (number >= left && number <= right);
+
+        /// <summary>
+        /// Проверяет границы введенного значения
+        /// </summary>
+        /// <param name="message">выводимое сообщение</param>
+        /// <param name="left">левая граница</param>
+        /// <param name="right">правая граница</param>
+        /// <returns>число</returns>
+        static int ReadIntAddCheckDiapason(string message, int left, int right)
+        {
+            int number;
+            do
+            {
+                number = ReadInt(message);
+                if (!IsNumberInDiapason(number, left, right))
+                    Console.WriteLine($"Число должно быть от {left} до {right}");
+            } while (!IsNumberInDiapason(number, left, right));
+            return number;
+        }
+
+        //проверка наличия элементов в массиве
+        static bool IsArrayEmpty(int[,] matrix) => matrix is null || matrix.Length == 0;
+
+        static bool IsArrayEmpty(int[][] matrix) => matrix is null || matrix.Length == 0;
+        #endregion
+
+        #region обработка двумерного массива
+
+        /// <summary>
+        /// Формирует двумерный массив с помощью ДСЧ
+        /// </summary>
+        /// <param name="rows">количество строк</param>
+        /// <param name="columns">количество столбцов</param>
+        /// <returns>двумерный массив</returns>
+        static int[,] CreateRandomArray(int rows, int columns)
+        {
+            int[,] matrix = new int[rows, columns];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                    matrix[i, j] = rand.Next(0, 100);
+            }
+            Console.WriteLine("Массив сформирован");
+            return matrix;
+        }
+
+        /// <summary>
+        /// Формирует двумерный массив с клавиатуры
+        /// </summary>
+        /// <param name="rows">количество строк</param>
+        /// <param name="columns">количество столбцов</param>
+        /// <returns>двумерный массив</returns>
+        static int[,] CreateArray(int rows, int columns)
+        {
+            int[,] matrix = new int[rows, columns];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    matrix[i, j] = ReadInt("Введите добавляемый элемент двумерного массива:");
+                }
+            }
+            Console.WriteLine();
+            Console.WriteLine("Массив сформирован");
+            return matrix;
+        }
+
+        
+        /// <summary>
+        /// Выводит на экран двумерный массив
+        /// </summary>
+        /// <param name="matrix">матрица</param>
+        static void PrintMatrix(int[,] matrix)
+        {
+            if (IsArrayEmpty(matrix))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Двумерный массив пуст");
+                return;
+            }
+            Console.WriteLine();
+            Console.WriteLine("Сформированный массив");
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                    Console.Write($"{matrix[i, j], 4}");
+                Console.WriteLine();
+            }
+        }
+
+        /// <summary>
+        /// Удаляет столбцы, в которых есть 0
+        /// </summary>
+        /// <param name="matrix">матрица</param>
+        /// <returns></returns>
+        static int[,] DeleteColoumn(int[,] matrix)
+        {
+
+            int counter = 0;            
+            for (int i = 0; i < matrix.GetLength(1); i++)
+            {
+                int cnt = 0;                
+                for (int j = 0; j < matrix.GetLength(0); j++)
+                {
+                    if (matrix[j, i] == 0)
+                        cnt++;
+                }
+                if (cnt == 0)
+                    counter++;
+            }
+            int n = 0;
+            int[,] tempMatrix = new int[matrix.GetLength(0), counter];
+            for (int i = 0; i < matrix.GetLength(1); i++)
+            {
+                int cnt = 0;
+                for (int j = 0; j < matrix.GetLength(0); j++)
+                {
+                    if (matrix[j, i] == 0)
+                        cnt++;
+                }
+                if (cnt == 0)
+                {
+                    for (int k=0; k<matrix.GetLength(0);  k++)
+                    {
+                        tempMatrix[k, n] = matrix[k, i];                        
+                    }
+                    n++;
+                }
+            }
+            Console.WriteLine();
+            Console.WriteLine("Столбцы с нулевыми элементами удалены");
+            return tempMatrix;
+        }
+
+
+        #endregion
+
+        #region обработка рваного массива
+
+        /// <summary>
+        /// Формирует рваный массив с помощью ДСЧ
+        /// </summary>
+        /// <param name="stringNumber">количество строк массива</param>
+        /// <returns></returns>
+        static int[][] CreateRandomArray(int stringNumber)
+        {
+            int[][] ragArray = new int[stringNumber][];
+            for (int i = 0; i < stringNumber; i++)
+            {
+                int counter = rand.Next(1, 10);//счётчик кол-ва элементов в строке
+                ragArray[i] = new int[counter];
+                for (int j = 0; j < counter; j++)
+                {
+                    ragArray[i][j] = rand.Next(-10, 10);
+                }
+            }
+            Console.WriteLine("Рваный массив сформирован");
+            return ragArray;
+        }
+
+        /// <summary>
+        /// Формирует рваный массив с клавиатуры
+        /// </summary>
+        /// <param name="stringNumber">количество строк массива</param>
+        /// <returns>сформированный рваный массив</returns>
+        static int[][] CreateArray(int stringNumber)
+        {
+            int[][] ragArray = new int[stringNumber][];
+            for (int i = 0; i < stringNumber; i++)
+            {
+                int counter = ReadIntAddCheckDiapason("Введите количество элементов в строке:", 1, 100);//счётчик кол-ва элементов в строке
+                ragArray[i] = new int[counter];
+                for (int j = 0; j < counter; j++)
+                {
+                    ragArray[i][j] = ReadInt("Введите добавляемый элемент рваного массива:");
+                }
+            }
+            Console.WriteLine("Рваный массив сформирован");
+            return ragArray;
+        }
+
+        
+        /// <summary>
+        /// Выводит рваный массив на экран
+        /// </summary>
+        /// <param name="ragArray">рваный массив</param>
+        static void PrintRagArray(int[][] ragArray)
+        {
+            if (IsArrayEmpty(ragArray))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Рванный массив пуст");
+                return;
+            }
+            Console.WriteLine();
+            Console.WriteLine("Сформированный рванный массив");
+            for (int i = 0; i < ragArray.Length; i++)
+            {
+                for (int j = 0; j < ragArray[i].Length; j++)
+                    Console.Write($"{ragArray[i][j],4}");
+                Console.WriteLine();
+            }
+        }
+
+        /// <summary>
+        /// Добавляет строку с задвнным номером в массив
+        /// </summary>
+        /// <param name="ragArray">рваный массив</param>
+        /// <returns>рваный массив с добавленой строкой</returns>        
+        static int[][] AddStrRugArray(int[][] ragArray)
+        {
+            int number = ReadIntAddCheckDiapason("Введите номер добавляемой строки:", 1, ragArray.Length+1);
+            number--;
+            int[][] tempRagArray = new int[ragArray.Length + 1][];
+            for (int i = 0; i < tempRagArray.Length; i++)
+            {
+                if (i < number)
+                    tempRagArray[i] = ragArray[i];
+                else
+                {
+                    if (i == number)
+                    {
+                        int addStrLen = ReadIntAddCheckDiapason("Введите длину добавляемой строки:", 1, 100);
+                        tempRagArray[i] = new int[addStrLen];
+
+                        for (int k = 0; k < addStrLen; k++)
+                            tempRagArray[i][k] = ReadInt("Введите добавляемый элемент рваного массива:");
+                    }
+                    else
+                        tempRagArray[i] = ragArray[i - 1];
+                }
+            }
+            Console.WriteLine("Строка добавлена");
+            return tempRagArray;
+        }
+
+        #endregion
+
+        #region работа со строками
+        //проверка правильности введенной строки
+
+        static char[] sentencesSeparators = { '.', '!', '?' };
+        static char[] wordsSeparatorsAndSpace = { '.', '!', '?', ' ' };
+        static char[] wordsSeparators = { ',', ':', ';' };
+
+        /// <summary>
+        /// Проверяет на наличие недопустимых разделителей
+        /// </summary>
+        /// <param name="c">символ строки</param>
+        /// <returns></returns>
+        static bool IsAnySeparator(char c)
+        {
+            foreach(char c2 in wordsSeparatorsAndSpace)
+                if (c2 == c) return true;
+            foreach (char c3 in sentencesSeparators)
+                if (c3 == c) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Проверяет элементы строки на правильность
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <returns></returns>
+        static bool CheckSeparatorsString(string text)
+        {
+            foreach (char c in text)
+            {
+                if (!(Char.IsLetterOrDigit(c) || IsAnySeparator(c)))
+                    return false;
+            }
+            if (!IsSentencesSeparator(text[text.Length - 1]))
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Проверяет строку на наличие двух разделителей подряд
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <returns></returns>
+        static bool CheckDoubleSeparators(string text)
+        {
+            for (int i = 0; i < text.Length-1; i++)
+            {
+                if (IsSentencesSeparator(text[i])&& IsSentencesSeparator(text[i+1]))
+                    return false ;
+                if (IsWordsSeparator(text[i]) && IsWordsSeparator(text[i + 1]))
+                    return false;
+                if (IsSentencesSeparator(text[i]) && IsWordsSeparator(text[i + 1]))
+                    return false;
+                if (IsWordsSeparator(text[i]) && IsSentencesSeparator(text[i + 1]))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Проверяет является ли символ разделителем слов
+        /// </summary>
+        /// <param name="c">символ строки</param>
+        /// <returns></returns>
+        static bool IsWordsSeparator(char c)
+        {
+            for (int i = 0; i < wordsSeparators.Length; i++)
+            {
+                if (c == wordsSeparators[i]) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Проверяет является ли символ разделителем предложений
+        /// </summary>
+        /// <param name="c">символ строки</param>
+        /// <returns></returns>
+        static bool IsSentencesSeparator(char c)
+        {
+            for (int i = 0; i < sentencesSeparators.Length; i++)
+            {
+                if (c == sentencesSeparators[i]) return true;
+            }
+            return false;
+        }             
+
+        /// <summary>
+        /// Переворачивает предложения, оканчивающиеся восклицательным знаком
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <returns>строка после переворота</returns>
+        static string ReverseSentences(string text)
+        {
+            
+
+            if (!CheckSeparatorsString(text) || !CheckDoubleSeparators(text))
+                return "Строка введена неверно.";
+
+            bool isNeed = false;
+            foreach(char element in text)
+            {
+                if (IsSentencesSeparator(element)) text = text.Replace(Convert.ToString(element), Convert.ToString(element)+"*");
+                if (element == '!') isNeed = true;
+            }
+            if (isNeed)
+            {
+                string[] sentences = text.Split('*', StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    if (sentences[i].EndsWith("!"))
+                    {
+                        string[] words = sentences[i].TrimEnd('!').Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        Array.Reverse(words);                        
+                        sentences[i] = String.Join(" ", words) + "!";
+                    }
+                }
+                string resStr = String.Join(" ", sentences);
+                Console.WriteLine("Строки после процедуры переворота:");
+                return resStr;
+            }           
+            else return "Строка не содержит предложений с '!'. Строка не была изменена.";
+        }
+        #endregion
+
+
+        static void Main(string[] args)
+        {
+            int[,] matrix = new int[0, 0];
+            int[][] ragArray = new int[0][];
+            int check = 0, check2 = 0, check3 = 0;
+            
+            Console.WriteLine("Лабораторная работа №5");
+            do
+            {
+                PrintMenu();
+                check = ReadIntAddCheckDiapason("", 1, 4);
+
+                switch (check)
+                {
+                    case 1: //работа с двумерным массивом
+                        {
+                            do
+                            {
+                                PrintMenu2();
+                                check2 = ReadIntAddCheckDiapason("", 1, 4);
+
+                                switch (check2)
+                                {
+                                    case 1://формирование массива
+                                        {
+                                            {
+                                                PrintMenu3();
+                                                check3 = ReadIntAddCheckDiapason("", 1, 3);
+
+                                                switch (check3)
+                                                {
+                                                    case 1://формирование с помощью ДСЧ
+                                                        {
+                                                            matrix = CreateRandomArray(ReadIntAddCheckDiapason("Введите количество строк массива: ",1,100), ReadIntAddCheckDiapason("Введите количество столбцов массива: ", 1, 100));
+                                                        }
+                                                        break;
+                                                    case 2://формирование с клавиатуры
+                                                        {
+                                                            matrix = CreateArray(ReadIntAddCheckDiapason("Введите количество строк массива: ", 1, 100), ReadIntAddCheckDiapason("Введите количество столбцов массива: ", 1, 100));
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    case 2://печать массива
+                                        {
+                                            PrintMatrix(matrix);
+                                        }
+                                        break;
+                                    case 3://удаление
+                                        {
+                                            matrix = DeleteColoumn(matrix);
+                                        }
+                                        break;
+                                }
+
+
+                            } while (check2 < 4);
+
+                        }
+                        break;
+                    case 2: //работа с рваным массивом
+                        {
+                            do
+                            {
+                                PrintMenu4();
+                                check2 = ReadIntAddCheckDiapason("", 1, 4);
+
+                                switch (check2)
+                                {
+                                    case 1://формирование массива
+                                        {
+                                            {
+                                                PrintMenu3();
+                                                check3 = ReadIntAddCheckDiapason("", 1, 3);
+
+                                                switch (check3)
+                                                {
+                                                    case 1://формирование с помощью ДСЧ
+                                                        {
+                                                            ragArray = CreateRandomArray(ReadInt("Введите количество строк:"));
+                                                        }
+                                                        break;
+                                                    case 2://формирование с клавиатуры
+                                                        {
+                                                            ragArray = CreateArray(ReadInt("Введите количество строк:"));
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    case 2://печать массива
+                                        {
+                                            PrintRagArray(ragArray);
+                                        }
+                                        break;
+                                    case 3://добавление
+                                        {
+                                            ragArray = AddStrRugArray(ragArray);
+                                        }
+                                        break;
+                                }
+
+
+                            } while (check2 < 4);
+
+                        }
+                        break;
+                    case 3:
+                        {
+                            bool isConvert;
+                            do
+                            {
+                                isConvert = true;
+                                Console.WriteLine("Введите строки:");
+                                string text = Console.ReadLine();
+                                if (text.Length != 0)
+                                {
+                                    text = ReverseSentences(text);
+                                    Console.WriteLine(text);
+                                }                               
+                                else
+                                {
+                                    Console.WriteLine("Строка пуста");
+                                    isConvert = false;
+                                }
+
+                            } while (!isConvert);
+
+
+                        }
+                        break;
+                }
+            } while (check < 4);
+        }
+    }
+}
